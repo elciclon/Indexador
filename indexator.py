@@ -20,28 +20,18 @@ def main():
         with pdfplumber.open(pdf_name) as pdf:
             pdf_lenght = len(pdf.pages)
             pages_ten_percent = round(pdf_lenght * .1)
-            selected_pages = select_pages(pages_ten_percent,pdf)
-            
+            selected_pages = select_pages(pages_ten_percent,pdf)            
             index = ['indice'] 
             index_pages_word_wordindex = conform_index(pdf, pages_ten_percent, index)
-            
             stats = conform_stats(selected_pages)
             index_pages = index_pages_word_wordindex[0]
             word = index_pages_word_wordindex[1][1]
             wordindex = index_pages_word_wordindex[1][2]
-            total_lines = []
-            for page in index_pages:
-                lines = list_conform(pdf.pages[page])
-                lines = remove_spaces(lines)
-                lines = remove_empty_items(lines, word)
-                del lines[0]
-                total_lines += lines
-
+            total_lines = clean_total_lines(index_pages, pdf, word)
             pdf_indexed = copy_pdf(pdf_name)
             pdf_indexed = insert_index_outline(pdf_indexed, index[wordindex], index_pages[0])
-            
             page_being_ckecked_number = index_pages[-1] + 1
-            
+           
             for line in total_lines:
 
                 while page_being_ckecked_number <= pdf_lenght:
@@ -68,6 +58,9 @@ def main():
 
     except EnvironmentError: # parent of IOError, OSError *and* WindowsError where available
         print("The file doesn't exists")        
+
+
+
 
 def conform_stats(selected_pages):  
     stats =[[selected_pages[0].chars[0], 1]]
@@ -248,6 +241,17 @@ def copy_pdf(pdf_name):
     pdf_indexed = PdfFileWriter()
     pdf_indexed.cloneDocumentFromReader(pdf_to_index)
     return pdf_indexed
+
+
+def clean_total_lines(index_pages, pdf, word):
+    total_lines = []
+    for page in index_pages:
+        lines = list_conform(pdf.pages[page])
+        lines = remove_spaces(lines)
+        lines = remove_empty_items(lines, word)
+        del lines[0]
+        total_lines += lines
+    return total_lines
 
 
 if __name__ == '__main__':
