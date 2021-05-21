@@ -83,10 +83,12 @@ def conform_stats(selected_pages):
 
     return sorted_stats       
 
+
 def insert_index_outline(pdf_indexed, index, index_result):
     parent = pdf_indexed.addBookmark('Index', 0) # add parent bookmark
     pdf_indexed.addBookmark(str(index).capitalize(), index_result, parent)
     return pdf_indexed
+
 
 def remove_spaces(lines):
     no_space_lines =[]
@@ -102,16 +104,19 @@ def remove_spaces(lines):
         
     return proc_lines
 
+
 def list_conform(page):
     lines = page.extract_text(x_tolerance=3, y_tolerance=3).splitlines()
     return lines
     
+
 def is_word_in_text(index, text):
     for i, word in enumerate(index):
         if word in text:
             word_packed = [True, word, i]
             return word_packed
     return False
+
 
 def remove_empty_items(lines, index):
     i = 0
@@ -124,6 +129,7 @@ def remove_empty_items(lines, index):
     del lines[:i]
     lines = list(filter(None, lines)) 
     return lines
+
 
 def conform_index(pdf,pages_ten_percent, index):
     blank_pages = 0
@@ -158,12 +164,14 @@ def conform_index(pdf,pages_ten_percent, index):
                 
                 return index_pages_word_wordindex
 
+
 def write_indexed(pdf_name, pdf_indexed):
     indexed_pdf_name = pdf_name[:-4] + '_indexed.pdf'
     resultPdf = open(indexed_pdf_name, 'wb')
     pdf_indexed.write(resultPdf)
     resultPdf.close()
     sys.exit("Done!")
+
 
 def check_if_line_in_page(line, pdf, page_being_checked_number):
     line_found = False
@@ -179,10 +187,12 @@ def check_if_line_in_page(line, pdf, page_being_checked_number):
             
     return page_being_checked_number
             
+
 def add_outlines(line,pdf_indexed,page_with_line):
     line = line.capitalize()
     print("Adding outline: " + line)
     pdf_indexed.addBookmark(line, page_with_line)
+
 
 def compare_at_char_level(pdf, line, page_and_cursor):
     page_with_line = page_and_cursor[0]
@@ -206,6 +216,7 @@ def compare_at_char_level(pdf, line, page_and_cursor):
 
     return False        
 
+
 def get_matching(page_info, line_info, cursor):
     while True:
         if unidecode.unidecode((page_info[0].chars[cursor]['text']).lower()) != line_info[0][0]:
@@ -216,6 +227,7 @@ def get_matching(page_info, line_info, cursor):
             return cursor    
         else:
             cursor += 1    
+
 
 def is_end_of_page_reached(line_lenght, chars_in_page, cursor):
     if cursor + line_lenght > chars_in_page:
@@ -230,16 +242,27 @@ def conform_line_comparable(page, cursor, line_lenght):
         line_comparable += unidecode.unidecode(page.chars[cursor + i]['text'].lower())
     return line_comparable
 
+
 def compare_fonts(stats, page, cursor):
     if page.chars[cursor]['fontname'] + str(page.chars[cursor]['size']) in stats[0]:
         return False
     else:
         return True
         
+
 def copy_pdf(pdf_name):
+    # IMPLEMENTAR COMO OPCION
+    # pdf_writer = PdfFileWriter()
+    # existing_pdf=open("sample.pdf","rb")
+    # pdf_reader=PdfFileReader(existing_pdf)
+    # for pagenum in range(pdf_reader.numPages):
+    # obj=pdf_reader.getPage(pagenum)
+    # pdf_writer.addPage(obj)
     pdf_to_index = PdfFileReader(pdf_name)
     pdf_indexed = PdfFileWriter()
-    pdf_indexed.cloneDocumentFromReader(pdf_to_index)
+    for pagenum in range(pdf_to_index.numPages):
+        obj = pdf_to_index.getPage(pagenum)
+        pdf_indexed.addPage(obj)
     return pdf_indexed
 
 
